@@ -55,6 +55,11 @@ pub struct GlowWinitApp<'app> {
     // suspends and resumes.
     app_creator: Option<AppCreator<'app>>,
 }
+impl GlowWinitApp<'_> {
+    pub fn test(&self){
+        println!("test");
+    }
+}
 
 /// State that is initialized when the application is first starts running via
 /// a Resumed event. On Android this ensures that any graphics state is only
@@ -852,7 +857,7 @@ impl GlowWinitRunning<'_> {
                 if let (Some(window), Some(egui_winit)) =
                     (&viewport.window, &mut viewport.egui_winit)
                 {
-                    event_response = self.integration.on_window_event(window, egui_winit, event);
+                    event_response = self.integration.on_window_event(window, viewport_id,egui_winit, event);
                 }
             } else {
                 log::trace!("Ignoring event: no viewport for {viewport_id:?}");

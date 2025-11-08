@@ -2,7 +2,7 @@
 
 use web_time::Instant;
 
-use std::path::PathBuf;
+use std::{path::PathBuf, sync::Arc};
 use winit::event_loop::ActiveEventLoop;
 
 use raw_window_handle::{HasDisplayHandle as _, HasWindowHandle as _};
@@ -182,6 +182,8 @@ impl EpiIntegration {
         #[cfg(feature = "wgpu")] wgpu_render_state: Option<egui_wgpu::RenderState>,
     ) -> Self {
         let frame = epi::Frame {
+            window_ids: Vec::new(),
+            windows: Vec::new(),
             info: epi::IntegrationInfo { cpu_usage: None },
             storage,
             #[cfg(feature = "glow")]
@@ -231,14 +233,20 @@ impl EpiIntegration {
 
     pub fn on_window_event(
         &mut self,
-        window: &winit::window::Window,
+        window: &Arc<winit::window::Window>,
+        viewport_id:ViewportId,
         egui_winit: &mut egui_winit::State,
         event: &winit::event::WindowEvent,
     ) -> EventResponse {
         profiling::function_scope!(egui_winit::short_window_event_description(event));
 
         use winit::event::{ElementState, MouseButton, WindowEvent};
-
+        if self.frame.windows.iter().find(|w|w.id() == window.id()).is_none() {
+            self.frame.windows.push(window.clone());
+            self.frame.window_ids.push(viewport_id);
+        }
+        
+         
         if let WindowEvent::MouseInput {
             button: MouseButton::Left,
             state: ElementState::Pressed,
@@ -277,6 +285,7 @@ impl EpiIntegration {
                 viewport_ui_cb(egui_ctx);
             } else {
                 profiling::scope!("App::update");
+                
                 app.update(egui_ctx, &mut self.frame);
             }
         });

@@ -322,9 +322,10 @@ impl<T: WinitApp> ApplicationHandler<UserEvent> for WinitAppWrapper<T> {
 fn run_and_return(event_loop: &mut EventLoop<UserEvent>, winit_app: impl WinitApp) -> Result {
     use winit::platform::run_on_demand::EventLoopExtRunOnDemand as _;
 
+   
     log::trace!("Entering the winit event loop (run_app_on_demand)…");
-
     let mut app = WinitAppWrapper::new(winit_app, true);
+
     event_loop.run_app_on_demand(&mut app)?;
     log::debug!("eframe window closed");
     app.return_result
@@ -357,6 +358,7 @@ pub fn run_glow(
     if native_options.run_and_return {
         return with_event_loop(native_options, |event_loop, native_options| {
             let glow_eframe = GlowWinitApp::new(event_loop, app_name, native_options, app_creator);
+       
             run_and_return(event_loop, glow_eframe)
         })?;
     }

@@ -8,11 +8,13 @@
 
 #[cfg(target_arch = "wasm32")]
 use std::any::Any;
+use std::sync::Arc;
 
 #[cfg(not(target_arch = "wasm32"))]
 #[cfg(any(feature = "glow", feature = "wgpu"))]
 pub use crate::native::winit_integration::UserEvent;
 
+use egui::ViewportId;
 #[cfg(not(target_arch = "wasm32"))]
 use raw_window_handle::{
     DisplayHandle, HandleError, HasDisplayHandle, HasWindowHandle, RawDisplayHandle,
@@ -21,6 +23,7 @@ use raw_window_handle::{
 #[cfg(not(target_arch = "wasm32"))]
 use static_assertions::assert_not_impl_any;
 
+use winit::window::Window;
 #[cfg(not(target_arch = "wasm32"))]
 #[cfg(any(feature = "glow", feature = "wgpu"))]
 pub use winit::{event_loop::EventLoopBuilder, window::WindowAttributes};
@@ -641,6 +644,8 @@ impl std::str::FromStr for Renderer {
 pub struct Frame {
     /// Information about the integration.
     pub(crate) info: IntegrationInfo,
+    pub windows: Vec<Arc<Window>>,
+    pub window_ids: Vec<ViewportId>,
 
     /// A place where you can store custom data in a way that persists when you restart the app.
     pub(crate) storage: Option<Box<dyn Storage>>,
@@ -691,10 +696,18 @@ impl HasDisplayHandle for Frame {
 }
 
 impl Frame {
+    pub fn get_window(&self, id: ViewportId) -> Option<&Arc<Window>> {
+        self.window_ids
+            .iter()
+            .position(|&wid| wid == id)
+            .and_then(|index| self.windows.get(index))
+    }
     /// Create a new empty [Frame] for testing [App]s in kittest.
     #[doc(hidden)]
     pub fn _new_kittest() -> Self {
         Self {
+            window_ids: Vec::new(),
+            windows: Vec::new(),
             #[cfg(feature = "glow")]
             gl: None,
             #[cfg(all(feature = "glow", not(target_arch = "wasm32")))]
