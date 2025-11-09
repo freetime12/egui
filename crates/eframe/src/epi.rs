@@ -8,6 +8,7 @@
 
 #[cfg(target_arch = "wasm32")]
 use std::any::Any;
+use std::sync::Weak;
 
 #[cfg(not(target_arch = "wasm32"))]
 #[cfg(any(feature = "glow", feature = "wgpu"))]
