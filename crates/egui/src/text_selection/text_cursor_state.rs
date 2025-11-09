@@ -39,6 +39,7 @@ impl TextCursorState {
     /// range of the given [`Galley`].
     pub fn range(&self, galley: &Galley) -> Option<CCursorRange> {
         self.ccursor_range.map(|mut range| {
+
             range.primary = galley.clamp_cursor(&range.primary);
             range.secondary = galley.clamp_cursor(&range.secondary);
             range

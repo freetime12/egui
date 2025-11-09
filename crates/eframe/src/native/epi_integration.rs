@@ -182,7 +182,6 @@ impl EpiIntegration {
         #[cfg(feature = "wgpu")] wgpu_render_state: Option<egui_wgpu::RenderState>,
     ) -> Self {
         let frame = epi::Frame {
-            window_ids: Vec::new(),
             windows: Vec::new(),
             info: epi::IntegrationInfo { cpu_usage: None },
             storage,
@@ -241,12 +240,12 @@ impl EpiIntegration {
         profiling::function_scope!(egui_winit::short_window_event_description(event));
 
         use winit::event::{ElementState, MouseButton, WindowEvent};
-        if self.frame.windows.iter().find(|w|w.id() == window.id()).is_none() {
-            self.frame.windows.push(window.clone());
-            self.frame.window_ids.push(viewport_id);
+        if self.frame.windows.iter().find(|w|w.0.upgrade().map(|w| w.id()) == Some(window.id())).is_none() {
+            self.frame.windows.push((Arc::downgrade(window), viewport_id));
         }
         
-         
+
+
         if let WindowEvent::MouseInput {
             button: MouseButton::Left,
             state: ElementState::Pressed,

@@ -55,11 +55,6 @@ pub struct GlowWinitApp<'app> {
     // suspends and resumes.
     app_creator: Option<AppCreator<'app>>,
 }
-impl GlowWinitApp<'_> {
-    pub fn test(&self){
-        println!("test");
-    }
-}
 
 /// State that is initialized when the application is first starts running via
 /// a Resumed event. On Android this ensures that any graphics state is only

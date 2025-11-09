@@ -23,7 +23,7 @@ mod window_settings;
 
 pub use window_settings::WindowSettings;
 
-use raw_window_handle::{HasDisplayHandle};
+use raw_window_handle::HasDisplayHandle;
 
 use winit::{
     dpi::{PhysicalPosition, PhysicalSize},

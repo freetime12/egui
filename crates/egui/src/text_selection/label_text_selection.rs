@@ -159,6 +159,7 @@ impl Plugin for LabelSelectionState {
             if let Some(selection) = prev_selection {
                 // This was the first frame of glitch, so hide the
                 // glitching by removing all painted selections:
+
                 ctx.graphics_mut(|layers| {
                     if let Some(list) = layers.get_mut(selection.layer_id) {
                         for (shape_idx, row_selections) in self.painted_selections.drain(..) {
@@ -543,7 +544,7 @@ impl LabelSelectionState {
         // Look for changes due to keyboard and/or mouse interaction:
         let new_range = cursor_state.range(galley);
         let selection_changed = old_range != new_range;
-
+      
         if let (true, Some(range)) = (selection_changed, new_range) {
             // --------------
             // Store results:
@@ -568,6 +569,7 @@ impl LabelSelectionState {
                     );
                     self.has_reached_secondary = true;
                 }
+             
             } else {
                 // Start of a new selection
                 self.selection = Some(CurrentSelection {
@@ -612,7 +614,7 @@ impl LabelSelectionState {
         }
 
         let cursor_range = cursor_state.range(galley);
-
+     
         let mut new_vertex_indices = vec![];
 
         if let Some(cursor_range) = cursor_range {

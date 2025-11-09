@@ -8,7 +8,6 @@
 
 #[cfg(target_arch = "wasm32")]
 use std::any::Any;
-use std::sync::Arc;
 
 #[cfg(not(target_arch = "wasm32"))]
 #[cfg(any(feature = "glow", feature = "wgpu"))]
@@ -644,8 +643,8 @@ impl std::str::FromStr for Renderer {
 pub struct Frame {
     /// Information about the integration.
     pub(crate) info: IntegrationInfo,
-    pub windows: Vec<Arc<Window>>,
-    pub window_ids: Vec<ViewportId>,
+    /// Blah
+    pub windows: Vec<(Weak<Window>, ViewportId)>,
 
     /// A place where you can store custom data in a way that persists when you restart the app.
     pub(crate) storage: Option<Box<dyn Storage>>,
@@ -696,17 +695,17 @@ impl HasDisplayHandle for Frame {
 }
 
 impl Frame {
-    pub fn get_window(&self, id: ViewportId) -> Option<&Arc<Window>> {
-        self.window_ids
+    /// Get a handle to a window by its viewport id.
+    pub fn get_window(&self, id: ViewportId) -> Option<&Weak<Window>> {
+        self.windows
             .iter()
-            .position(|&wid| wid == id)
-            .and_then(|index| self.windows.get(index))
+            .find(|(_, wid)| *wid == id)
+            .map(|(w, _)| w)
     }
     /// Create a new empty [Frame] for testing [App]s in kittest.
     #[doc(hidden)]
     pub fn _new_kittest() -> Self {
         Self {
-            window_ids: Vec::new(),
             windows: Vec::new(),
             #[cfg(feature = "glow")]
             gl: None,
